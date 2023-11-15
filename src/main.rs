@@ -1,3 +1,6 @@
+pub mod pcap_file;
+use pcap_file::*;
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
@@ -6,6 +9,8 @@ fn main() {
         return;
     }
 
-    dbg!(args);
-    println!("Hello, world!");
+    let fname = &args[1];
+
+    let mut pcapf: PcapFile = PcapFile::new();
+    pcapf.read(fname);
 }
