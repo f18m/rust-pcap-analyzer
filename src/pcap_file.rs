@@ -69,9 +69,14 @@ pub struct PcapPacket {
     body: Vec<u8>,
 }
 
+pub mod packet_parse;
+
 impl PacketParsing for PcapPacket {
     fn parse(&self) -> Result<FlowInfo, PacketParsingError> {
         //format!("{}: {}", self.username, self.content)
+
+        let epacket = pnet::packet::ethernet::EthernetPacket::new(&self.body).unwrap();
+        packet_parse::handle_ethernet_frame(&epacket);
 
         return Err(PacketParsingError::NoIpLayer);
     }
@@ -91,13 +96,15 @@ impl PcapFile {
                 println!("Error during open: {}", e);
                 return false;
             }
-            Ok(mut file) => {
+            Ok(file) => {
                 println!("Opened successfully {}", fname);
 
+                let mut reader = std::io::BufReader::new(file);
+
                 // read header
-                match bincode::deserialize_from(&file) {
+                match bincode::deserialize_from(&mut reader) {
                     Err(e) => {
-                        println!("Error during deserialization of PCAP header: {}", e);
+                        println!("Error during deserialization of PCAP header1: {}", e);
                         return false;
                     }
                     Ok(h) => {
@@ -108,14 +115,30 @@ impl PcapFile {
 
                 // now loop through the PCAP till we have packets to read:
                 let mut p: PcapPacket = Default::default();
-                //let mut packet_hdr: PcaprecHdr = Default::default();
-                //let mut packet_body: Vec<u8> = Vec::new();
+                let mut npkts = 0;
                 loop {
-                    match bincode::deserialize_from(&file) {
+                    match bincode::deserialize_from(&mut reader) {
                         Err(e) => {
-                            println!("Error during deserialization of PCAP header: {}", e);
-                            break;
+                            match e.as_ref() {
+                                bincode::ErrorKind::Io(ioe) => {
+                                    if ioe.kind() == std::io::ErrorKind::UnexpectedEof {
+                                        // finished loading the whole PCAP file
+                                        break;
+                                    } else {
+                                        println!("Error during read of PCAP file: {}", ioe);
+                                        return false;
+                                    }
+                                }
+                                _ => {
+                                    println!(
+                                        "Error during deserialization of PCAP header2: {:?}",
+                                        e.as_ref()
+                                    );
+                                    return false;
+                                }
+                            }
                         }
+
                         Ok(h) => {
                             p.hdr = h;
                             //println!("The packet header is: {:?}", p.hdr);
@@ -123,23 +146,19 @@ impl PcapFile {
                             // read the packet content
                             let expected_len: usize = p.hdr.incl_len.try_into().unwrap(); // safe: a uint32 will always fit a usize, RIGHT?????
                             p.body.resize(expected_len, 0);
-                            let n: usize = file.read(&mut p.body).unwrap(); // unsafe: panicking on IOerrors while reading
-                            if n < expected_len {
-                                println!(
-                                    "Read only {} bytes out of {} expected bytes.",
-                                    n, expected_len
-                                );
-                                return false;
-                            }
+
+                            reader.read_exact(&mut p.body).unwrap(); // unsafe: panicking on IOerrors while reading
                         }
                     }
 
                     // if we get here, the packet hdr&body have been read correctly
-                    p.parse();
+                    _ = p.parse();
+                    npkts += 1;
                 }
 
-                // store the open file into PcapFile
-                self.actual_file = Some(file);
+                // store the open file into the PcapFile "self" instance... by taking the ownership back from the BufReader
+                println!("PCAP processing completed after loading {npkts} packets");
+                self.actual_file = Some(reader.into_inner());
             }
         }
 
