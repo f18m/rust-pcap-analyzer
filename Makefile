@@ -9,5 +9,5 @@ benchmark-rust:
 	time target/release/rust-pcap-analyzer $(PCAP_FN)
 
 benchmarks:
-	$(MAKE) benchmark-lpa
-	$(MAKE) benchmark-rust
+	$(MAKE) -s benchmark-lpa
+	$(MAKE) -s benchmark-rust
