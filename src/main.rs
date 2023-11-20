@@ -1,5 +1,7 @@
+#![forbid(unsafe_code)]
+
 pub mod pcap_file;
-use pcap_file::*;
+use pcap_file::PcapFile;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();

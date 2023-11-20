@@ -9,3 +9,11 @@ edition = "2021"
 bincode = "1.3.3"
 serde = { version = "1.0", features = ["derive"] }
 pnet = "0.34.0"
+
+[lib]
+name = "pcap_file"
+path = "src/pcap_file/mod.rs"
+
+[[bin]]
+name = "rust-pcap-analyzer"
+path = "src/main.rs"

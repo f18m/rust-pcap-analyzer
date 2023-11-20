@@ -11,3 +11,7 @@ benchmark-rust:
 benchmarks:
 	$(MAKE) -s benchmark-lpa
 	$(MAKE) -s benchmark-rust
+
+check-for-unsafe:
+	# see https://github.com/rust-secure-code/cargo-geiger
+	cargo geiger

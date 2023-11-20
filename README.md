@@ -10,6 +10,8 @@ This is just a test project to try different packet-parsing frameworks written i
 
 This test project is basically overlapping (partially) with:
 * https://crates.io/crates/pcap-file  (better than https://crates.io/crates/rpcap or https://crates.io/crates/pcap-rs)
+* https://github.com/rusticata/pcap-analyzer 
+
 
 # Benchmark results
 
@@ -38,3 +40,9 @@ sys     0m0.631s
 ```
 
 This shows that Rust and C++ have basically the same identical processing speed and they are both I/O-bound actually.
+
+
+# A word on my experience with Rust
+
+I found this to be really on-spot: https://fasterthanli.me/articles/frustrated-its-not-you-its-rust
+

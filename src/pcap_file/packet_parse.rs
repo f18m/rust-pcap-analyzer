@@ -7,10 +7,10 @@
 
 */
 
-use pnet::datalink::{self, NetworkInterface};
+#![forbid(unsafe_code)]
 
 use pnet::packet::arp::ArpPacket;
-use pnet::packet::ethernet::{EtherTypes, EthernetPacket, MutableEthernetPacket};
+use pnet::packet::ethernet::{EtherTypes, EthernetPacket};
 use pnet::packet::icmp::{echo_reply, echo_request, IcmpPacket, IcmpTypes};
 use pnet::packet::icmpv6::Icmpv6Packet;
 use pnet::packet::ip::{IpNextHeaderProtocol, IpNextHeaderProtocols};
@@ -19,12 +19,7 @@ use pnet::packet::ipv6::Ipv6Packet;
 use pnet::packet::tcp::TcpPacket;
 use pnet::packet::udp::UdpPacket;
 use pnet::packet::Packet;
-use pnet::util::MacAddr;
-
-use std::env;
-use std::io::{self, Write};
 use std::net::IpAddr;
-use std::process;
 
 static VERBOSE: bool = false;
 
