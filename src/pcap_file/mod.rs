@@ -1,6 +1,12 @@
-/*
- PcapFile
-*/
+//! # PcapFile test crate
+//!
+//! This crate contains some example code to read packets inside a PCAP file and process them with Rust.
+//!
+//! ## Examples
+//! ```
+//! let mut pcapf = pcap_file::PcapFile::new();
+//! pcapf.read("somefile.pcap");
+//! ```
 
 #![forbid(unsafe_code)]
 
